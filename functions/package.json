@@ -1,0 +1,25 @@
+{
+  "name": "sandesh-finance-functions",
+  "description": "Firebase Cloud Functions for Sandesh Finance",
+  "version": "1.0.0",
+  "engines": {
+    "node": "20"
+  },
+  "main": "index.js",
+  "scripts": {
+    "deploy":      "firebase deploy --only functions",
+    "deploy:loan": "firebase deploy --only functions:scheduleDailyLoanAlerts",
+    "logs":        "firebase functions:log",
+    "shell":       "firebase functions:shell",
+    "serve":       "firebase emulators:start --only functions,firestore",
+    "test":        "node index.test.js"
+  },
+  "dependencies": {
+    "firebase-admin":     "^12.0.0",
+    "firebase-functions": "^5.0.0"
+  },
+  "devDependencies": {
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}

@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sandesh Finance</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo-icon">₹</div>
+                <div>
+                    <h1 class="app-title">Sandesh Finance</h1>
+                    <p class="app-tagline">Smart lending, transparent tracking</p>
+                </div>
+            </div>
+            <div class="header-stats">
+                <div class="stat-card">
+                    <span class="stat-value" id="totalInvestors">0</span>
+                    <span class="stat-label">Investors</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="totalCommission">₹0</span>
+                    <span class="stat-label">Total Earnings</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="monthlyEarnings">₹0</span>
+                    <span class="stat-label">This Month</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="activeLoans">0</span>
+                    <span class="stat-label">Active Loans</span>
+                </div>
+                <button class="btn btn-download" onclick="downloadDataReport()">
+                    <span class="download-icon">📥</span> Download Data
+                </button>
+                <button class="btn btn-expense" onclick="window.location.href='expenses.html'">
+                    <span class="expense-icon">💰</span> Expenses
+                </button>
+                <!-- ── NOTIFICATION BELL ── -->
+                <div class="notif-wrapper" id="notifWrapper">
+                    <button class="notif-bell-btn" id="notifBellBtn"
+                            aria-label="Notifications" aria-expanded="false">
+                        🔔
+                        <span class="notif-badge" id="notifBadge"></span>
+                    </button>
+
+                    <div class="notif-dropdown" id="notifDropdown">
+                        <div class="notif-header">
+                            <div class="notif-header-left">
+                                <span class="notif-title">Notifications</span>
+                                <span class="notif-unread-pill" id="notifUnreadPill"></span>
+                            </div>
+                            <button class="notif-mark-all-btn" id="notifMarkAllBtn">✓ Mark all read</button>
+                        </div>
+
+                        <div class="notif-list" id="notifList">
+                            <div class="notif-skeleton" id="notifSkeleton">
+                                <div class="skel-bubble"></div>
+                                <div class="skel-lines">
+                                    <div class="skel-line w-70"></div>
+                                    <div class="skel-line w-90"></div>
+                                    <div class="skel-line w-40"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="notif-footer">
+                            <span class="notif-footer-count" id="notifFooterCount">Loading…</span>
+                            <button class="notif-clear-btn" id="notifClearReadBtn">🗑 Clear read</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Auth: user info + sign out (populated by script.js onAuthChange) -->
+                <div id="userInfo" style="display:none; align-items:center; gap:10px;">
+                    <span id="userEmail" style="font-size:12px; color:rgba(255,255,255,0.75);"></span>
+                    <button class="btn btn-secondary btn-small" id="btnLogout">Sign Out</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <!-- Capital Overview Section -->
+        <section class="module capital-overview-module">
+            <div class="module-header capital-header">
+                <h2 class="module-title"><span class="icon">💰</span> Capital Overview</h2>
+                <button class="btn btn-primary btn-small" onclick="showDueDatesDialog()">📅 View Due Dates</button>
+            </div>
+            <div class="capital-stats-grid">
+                <div class="capital-stat-card total">
+                    <span class="capital-icon">💼</span>
+                    <div class="capital-stat-content">
+                        <span class="capital-label">Total Capital</span>
+                        <span class="capital-value" id="totalCapital">₹0</span>
+                    </div>
+                </div>
+                <div class="capital-stat-card invested">
+                    <span class="capital-icon">📊</span>
+                    <div class="capital-stat-content">
+                        <span class="capital-label">Currently Invested</span>
+                        <span class="capital-value" id="totalInvested">₹0</span>
+                    </div>
+                </div>
+                <div class="capital-stat-card available">
+                    <span class="capital-icon">✨</span>
+                    <div class="capital-stat-content">
+                        <span class="capital-label">Available to Invest</span>
+                        <span class="capital-value" id="totalAvailable">₹0</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="people-section">
+            <section class="module investor-module">
+                <div class="module-header investor-header">
+                    <h2 class="module-title"><span class="icon">💼</span> Investors</h2>
+                    <button class="btn btn-primary btn-small" onclick="toggleInvestorForm()">+ Add Investor</button>
+                </div>
+                <div class="form-container" id="investorFormContainer" style="display: none;">
+                    <form id="investorForm" class="entity-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="investorName">Investor Name *</label>
+                                <input type="text" id="investorName" placeholder="Enter full name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="investorPhone">Phone Number *</label>
+                                <input type="tel" id="investorPhone" placeholder="10-digit number" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="investorCapital">Available Capital (₹) *</label>
+                            <input type="number" id="investorCapital" placeholder="Enter amount" min="0" step="1000" required>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-success">Save Investor</button>
+                            <button type="button" class="btn btn-secondary" onclick="toggleInvestorForm()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="list-container">
+                    <div id="investorsList" class="entities-list">
+                        <div class="empty-state">
+                            <span class="empty-icon">💼</span>
+                            <p>No investors yet.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="module borrower-module">
+                <div class="module-header borrower-header">
+                    <h2 class="module-title"><span class="icon">👥</span> Loan Takers</h2>
+                    <button class="btn btn-primary btn-small" onclick="toggleBorrowerForm()">+ Add Borrower</button>
+                </div>
+                <div class="form-container" id="borrowerFormContainer" style="display: none;">
+                    <form id="borrowerForm" class="entity-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="borrowerName">Borrower Name *</label>
+                                <input type="text" id="borrowerName" placeholder="Enter full name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="borrowerPhone">Phone Number *</label>
+                                <input type="tel" id="borrowerPhone" placeholder="10-digit number" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="borrowerAddress">Address (Optional)</label>
+                            <input type="text" id="borrowerAddress" placeholder="Enter address">
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-success">Save Borrower</button>
+                            <button type="button" class="btn btn-secondary" onclick="toggleBorrowerForm()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="list-container">
+                    <div id="borrowersList" class="entities-list">
+                        <div class="empty-state">
+                            <span class="empty-icon">👥</span>
+                            <p>No borrowers yet.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <section class="module loan-creation-module">
+            <div class="module-header loan-header">
+                <h2 class="module-title"><span class="icon">💸</span> Create New Loan</h2>
+            </div>
+
+            <form id="loanForm" class="loan-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="loanInvestor">Select Investor *</label>
+                        <select id="loanInvestor" required><option value="">Choose an investor...</option></select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="loanBorrower">Select Borrower *</label>
+                        <select id="loanBorrower" required><option value="">Choose a borrower...</option></select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="loanAmount">Loan Amount (₹) *</label>
+                        <input type="number" id="loanAmount" placeholder="Enter amount" min="1" step="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Interest Setup *</label>
+                        <div class="input-group-row">
+                            <div class="input-wrapper">
+                                <label class="sub-label">Borrower Pays (%)</label>
+                                <input type="number" id="borrowerRate" placeholder="e.g. 10" min="0.1" step="0.1" required>
+                            </div>
+                            <div class="input-wrapper">
+                                <label class="sub-label">Investor Gets (%)</label>
+                                <input type="number" id="investorRate" placeholder="e.g. 8" min="0.1" step="0.1" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="interestFrequency">Frequency *</label>
+                        <select id="interestFrequency" required>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="15days">Every 15 Days</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="yearly">Yearly (p.a.)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="loanDuration">Loan Duration *</label>
+                        <div class="duration-input-group">
+                            <input type="number" id="loanDuration" placeholder="Enter duration" min="1" max="360" required>
+                            <select id="durationUnit" class="duration-unit-select">
+                                <option value="days">Days</option>
+                                <option value="15days">15 Days</option>
+                                <option value="weeks">Weeks</option>
+                                <option value="months" selected>Months</option>
+                                <option value="years">Years</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="startDate">Start Date *</label>
+                        <input type="date" id="startDate" required>
+                    </div>
+                </div>
+
+                <div class="calculation-display">
+                    <h3 class="calc-title">Loan Breakdown</h3>
+                    <div class="calc-grid">
+                        <div class="calc-item">
+                            <span class="calc-label">Borrower Pays (Interest)</span>
+                            <span class="calc-value" id="calcTotalInterest">₹0</span>
+                        </div>
+                        <div class="calc-item investor-item">
+                            <span class="calc-label">Investor Earns</span>
+                            <span class="calc-value" id="calcInvestorShare">₹0</span>
+                        </div>
+                        <div class="calc-item commission-item">
+                            <span class="calc-label">My Spread (Profit)</span>
+                            <span class="calc-value" id="calcCommission">₹0</span>
+                        </div>
+                        <div class="calc-item highlight">
+                            <span class="calc-label">Total Repayment Amount</span>
+                            <span class="calc-value" id="totalPayable">₹0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions centered">
+                    <button type="submit" class="btn btn-primary btn-large">Create Loan</button>
+                    <button type="reset" class="btn btn-secondary">Clear Form</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="module loans-table-module">
+            <div class="module-header table-header">
+                <h2 class="module-title"><span class="icon">📊</span> Active Loans</h2>
+                <div class="table-controls">
+                    <input type="text" id="searchLoans" placeholder="Search..." class="search-input">
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="loans-table" id="loansTable">
+                    <thead>
+                        <tr>
+                            <th>Details</th>
+                            <th>Amount</th>
+                            <th>Rates (B / I)</th>
+                            <th>Interest Coll.</th>
+                            <th>Inv. Share</th>
+                            <th>My Profit</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="loansTableBody">
+                        <tr class="empty-row">
+                            <td colspan="9">
+                                <div class="empty-state">
+                                    <span class="empty-icon">📊</span>
+                                    <p>No active loans.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <div id="toast" class="toast"></div>
+    
+    <!-- Confirmation Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Confirm</h3>
+            <p id="modalMessage">Are you sure?</p>
+            <div class="modal-actions">
+                <button class="btn btn-danger" id="modalConfirm">Confirm</button>
+                <button class="btn btn-secondary" id="modalCancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Due Dates Dialog -->
+    <div id="dueDatesModal" class="modal due-dates-modal">
+        <div class="modal-content due-dates-content">
+            <div class="due-dates-header">
+                <h3>📅 Upcoming Due Dates</h3>
+                <button class="close-btn" onclick="closeDueDatesDialog()">✕</button>
+            </div>
+            
+            <div class="due-dates-tabs">
+                <button class="tab-btn active" data-tab="all">All</button>
+                <button class="tab-btn" data-tab="borrowers">Borrowers</button>
+                <button class="tab-btn" data-tab="investors">Investors</button>
+            </div>
+            
+            <div id="dueDatesContent" class="due-dates-list">
+                <!-- Content populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Modal for Urgent Loans -->
+    <div id="alertModal" class="modal alert-modal">
+        <div class="modal-content alert-content">
+            <div class="alert-header">
+                <h3>🚨 Urgent: Loans Due Within 5 Days</h3>
+            </div>
+            <div id="alertContent" class="alert-list">
+                <!-- Content populated by JS -->
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="dismissAlerts()">Got it, dismiss for today</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delay Modal -->
+    <div id="delayModal" class="modal delay-modal">
+        <div class="modal-content delay-content">
+            <div class="delay-header">
+                <h3>⏰ Add Delay for Borrower</h3>
+                <button class="close-btn" onclick="closeDelayDialog()">✕</button>
+            </div>
+            
+            <form id="delayForm" class="delay-form">
+                <div class="form-group">
+                    <label for="delayDate">New Due Date *</label>
+                    <input type="date" id="delayDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="penaltyAmount">Penalty Amount (₹)</label>
+                    <input type="number" id="penaltyAmount" placeholder="Enter penalty amount" min="0" step="100" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="penaltyFrequency">Penalty Frequency</label>
+                    <select id="penaltyFrequency">
+                        <option value="none">No Recurring Penalty</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="15days">Every 15 Days</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="delayReason">Reason for Delay (Optional)</label>
+                    <textarea id="delayReason" placeholder="Enter reason for delay" rows="3"></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">Apply Delay</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeDelayDialog()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Investor Capital Modal -->
+    <div id="editCapitalModal" class="modal edit-capital-modal">
+        <div class="modal-content edit-capital-content">
+            <div class="edit-capital-header">
+                <h3>✏️ Edit Investor Capital</h3>
+                <button class="close-btn" onclick="closeEditCapitalDialog()">✕</button>
+            </div>
+            
+            <form id="editCapitalForm" class="edit-capital-form">
+                <div class="investor-info">
+                    <h4 id="editInvestorName"></h4>
+                    <p>Current Capital: <strong id="currentCapital"></strong></p>
+                    <p>Currently Invested: <strong id="currentInvested"></strong></p>
+                </div>
+
+                <div class="form-group">
+                    <label for="newCapital">New Capital Amount (₹) *</label>
+                    <input type="number" id="newCapital" placeholder="Enter new capital amount" min="0" step="1" required>
+                </div>
+
+                <div class="capital-note">
+                    <strong>Note:</strong> The new capital amount must be at least equal to the currently invested amount.
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">Update Capital</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeEditCapitalDialog()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Investment Details Modal -->
+    <div id="investmentDetailsModal" class="modal investment-details-modal">
+        <div class="modal-content investment-details-content">
+            <div class="investment-details-header">
+                <div>
+                    <h3>💰 Investment Details</h3>
+                    <p id="investmentPersonName" class="investment-subtitle"></p>
+                </div>
+                <button class="close-btn" onclick="closeInvestmentDetailsDialog()">✕</button>
+            </div>
+            
+            <div class="investment-summary">
+                <div class="investment-stat">
+                    <span class="investment-stat-label">Total Amount</span>
+                    <span class="investment-stat-value" id="investmentTotalAmount">₹0</span>
+                </div>
+                <div class="investment-stat">
+                    <span class="investment-stat-label">Active Loans</span>
+                    <span class="investment-stat-value" id="investmentActiveLoans">0</span>
+                </div>
+                <div class="investment-stat">
+                    <span class="investment-stat-label">Expected Returns</span>
+                    <span class="investment-stat-value" id="investmentExpectedReturns">₹0</span>
+                </div>
+            </div>
+
+            <div id="investmentDetailsList" class="investment-details-list">
+                <!-- Content populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Borrower Loans Details Modal -->
+    <div id="borrowerLoansModal" class="modal borrower-loans-modal">
+        <div class="modal-content borrower-loans-content">
+            <div class="borrower-loans-header">
+                <div>
+                    <h3>📋 Loan Details</h3>
+                    <p id="borrowerPersonName" class="borrower-subtitle"></p>
+                </div>
+                <button class="close-btn" onclick="closeBorrowerLoansDialog()">✕</button>
+            </div>
+            
+            <div class="borrower-summary">
+                <div class="borrower-stat">
+                    <span class="borrower-stat-label">Total Borrowed</span>
+                    <span class="borrower-stat-value" id="borrowerTotalBorrowed">₹0</span>
+                </div>
+                <div class="borrower-stat">
+                    <span class="borrower-stat-label">Active Loans</span>
+                    <span class="borrower-stat-value" id="borrowerActiveLoans">0</span>
+                </div>
+                <div class="borrower-stat">
+                    <span class="borrower-stat-label">Total Payable</span>
+                    <span class="borrower-stat-value" id="borrowerTotalPayable">₹0</span>
+                </div>
+            </div>
+
+            <div id="borrowerLoansList" class="borrower-loans-list">
+                <!-- Content populated by JS -->
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Investment Portfolio Modal -->
+    <div id="portfolioModal" class="modal portfolio-modal">
+        <div class="modal-content portfolio-content">
+            <div class="portfolio-header">
+                <div>
+                    <h3>📊 Investment Portfolio</h3>
+                    <p id="portfolioInvestorName" class="portfolio-subtitle"></p>
+                </div>
+                <button class="close-btn" onclick="closePortfolioDialog()">✕</button>
+            </div>
+            
+            <div class="portfolio-summary">
+                <div class="portfolio-stat">
+                    <span class="portfolio-stat-label">Total Invested</span>
+                    <span class="portfolio-stat-value" id="portfolioTotalInvested">₹0</span>
+                </div>
+                <div class="portfolio-stat">
+                    <span class="portfolio-stat-label">Active Loans</span>
+                    <span class="portfolio-stat-value" id="portfolioActiveLoans">0</span>
+                </div>
+                <div class="portfolio-stat">
+                    <span class="portfolio-stat-label">Expected Returns</span>
+                    <span class="portfolio-stat-value" id="portfolioExpectedReturns">₹0</span>
+                </div>
+            </div>
+
+            <div id="portfolioInvestmentsList" class="portfolio-investments-list">
+                <!-- Content populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+    <!--
+        script.js runs as an ES Module so it can import from auth.js and firestore.js.
+        The body is hidden at load time; script.js's onAuthChange() reveals it
+        only after Firebase confirms the user is authenticated.
+    -->
+    <script>document.body.style.visibility = 'hidden';</script>
+    <script type="module" src="script.js"></script>
+</body>
+</html>

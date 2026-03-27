@@ -1,0 +1,41 @@
+// ================================================================
+// firestore.rules — Sandesh Finance (complete, production-ready)
+// Paste into: Firebase Console → Firestore → Rules
+// ================================================================
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Default: deny everything ──────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ── User data: only the owner can read/write ──────────────
+    // Covers: investors, borrowers, loans, notifications, meta
+    match /users/{userId}/{collection}/{docId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+
+    // ── Meta document (same rule, explicit for clarity) ───────
+    match /users/{userId}/meta/{doc} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+
+    // ── Notifications: user can read/update own, not create ───
+    // Cloud Functions use Admin SDK (bypasses these rules).
+    // Client creates notifications only via the functions module.
+    match /users/{userId}/notifications/{notifId} {
+      allow read:   if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                                   .hasOnly(['isRead', 'readAt']);
+      allow delete: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

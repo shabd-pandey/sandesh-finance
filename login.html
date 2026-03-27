@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sandesh Finance — Sign In</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* ── Design tokens (mirrors style.css) ── */
+        :root {
+            --primary-dark:   #0a0e27;
+            --primary-mid:    #1a1f3a;
+            --primary-blue:   #2563eb;
+            --primary-light:  #3b82f6;
+            --accent-green:   #10b981;
+            --accent-red:     #ef4444;
+            --white:          #ffffff;
+            --gray-100:       #f1f5f9;
+            --gray-300:       #cbd5e1;
+            --gray-500:       #64748b;
+            --gray-700:       #334155;
+            --font-display:   'Syne', sans-serif;
+            --font-body:      'DM Sans', sans-serif;
+            --radius:         12px;
+            --shadow:         0 20px 60px rgba(0,0,0,0.4);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-mid) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        /* ── Card ── */
+        .auth-card {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 440px;
+            overflow: hidden;
+        }
+
+        /* ── Card header ── */
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-light) 100%);
+            padding: 36px 36px 28px;
+            text-align: center;
+        }
+        .logo {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            margin: 0 auto 14px;
+        }
+        .brand-name {
+            font-family: var(--font-display);
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--white);
+            letter-spacing: -0.3px;
+        }
+        .brand-tagline {
+            font-size: 13px;
+            color: rgba(255,255,255,0.75);
+            margin-top: 4px;
+        }
+
+        /* ── Tab toggle ── */
+        .tab-row {
+            display: flex;
+            background: var(--gray-100);
+            border-bottom: 1px solid var(--gray-300);
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            background: transparent;
+            font-family: var(--font-body);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-500);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .tab-btn.active {
+            color: var(--primary-blue);
+            background: var(--white);
+        }
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0; right: 0;
+            height: 2px;
+            background: var(--primary-blue);
+        }
+
+        /* ── Form body ── */
+        .card-body { padding: 28px 32px 32px; }
+
+        .form-panel { display: none; }
+        .form-panel.active { display: block; }
+
+        .form-group { margin-bottom: 18px; }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 6px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid var(--gray-300);
+            border-radius: var(--radius);
+            font-family: var(--font-body);
+            font-size: 14px;
+            color: var(--gray-700);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-group input:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+        }
+        .form-group input.error { border-color: var(--accent-red); }
+
+        /* ── Error & success messages ── */
+        .auth-message {
+            padding: 11px 14px;
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .auth-message.error {
+            background: #fef2f2;
+            color: var(--accent-red);
+            border: 1px solid #fecaca;
+            display: block;
+        }
+        .auth-message.success {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+            display: block;
+        }
+
+        /* ── Buttons ── */
+        .btn-primary {
+            width: 100%;
+            padding: 13px;
+            background: var(--primary-blue);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius);
+            font-family: var(--font-body);
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            margin-bottom: 12px;
+        }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 4px 0 14px;
+            color: var(--gray-500);
+            font-size: 13px;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--gray-300);
+        }
+
+        .btn-google {
+            width: 100%;
+            padding: 12px;
+            background: var(--white);
+            color: var(--gray-700);
+            border: 1.5px solid var(--gray-300);
+            border-radius: var(--radius);
+            font-family: var(--font-body);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .btn-google:hover {
+            background: var(--gray-100);
+            border-color: var(--gray-500);
+        }
+        .btn-google svg { flex-shrink: 0; }
+
+        /* ── Spinner ── */
+        .spinner {
+            display: inline-block;
+            width: 16px; height: 16px;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-top-color: var(--white);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Footer note ── */
+        .card-footer {
+            text-align: center;
+            padding: 0 32px 24px;
+            font-size: 12px;
+            color: var(--gray-500);
+        }
+    </style>
+</head>
+<body>
+
+<div class="auth-card">
+
+    <!-- Header -->
+    <div class="card-header">
+        <div class="logo">₹</div>
+        <div class="brand-name">Sandesh Finance</div>
+        <div class="brand-tagline">Smart lending, transparent tracking</div>
+    </div>
+
+    <!-- Tab row -->
+    <div class="tab-row">
+        <button class="tab-btn active" id="tabLogin"  onclick="switchTab('login')">Sign In</button>
+        <button class="tab-btn"        id="tabSignup" onclick="switchTab('signup')">Create Account</button>
+    </div>
+
+    <!-- Form body -->
+    <div class="card-body">
+
+        <!-- ── LOGIN PANEL ── -->
+        <div class="form-panel active" id="panelLogin">
+            <div class="auth-message" id="loginMsg"></div>
+
+            <div class="form-group">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+            </div>
+
+            <button class="btn-primary" id="btnLogin" onclick="handleLogin()">Sign In</button>
+
+            <div class="divider">or</div>
+
+            <button class="btn-google" id="btnGoogleLogin" onclick="handleGoogleLogin()">
+                <!-- Google "G" icon -->
+                <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z"/>
+                    <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z"/>
+                    <path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332Z"/>
+                    <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58Z"/>
+                </svg>
+                Continue with Google
+            </button>
+        </div>
+
+        <!-- ── SIGNUP PANEL ── -->
+        <div class="form-panel" id="panelSignup">
+            <div class="auth-message" id="signupMsg"></div>
+
+            <div class="form-group">
+                <label for="signupEmail">Email</label>
+                <input type="email" id="signupEmail" placeholder="you@example.com" autocomplete="email">
+            </div>
+            <div class="form-group">
+                <label for="signupPassword">Password</label>
+                <input type="password" id="signupPassword" placeholder="Min. 6 characters" autocomplete="new-password">
+            </div>
+            <div class="form-group">
+                <label for="signupConfirm">Confirm Password</label>
+                <input type="password" id="signupConfirm" placeholder="Re-enter password" autocomplete="new-password">
+            </div>
+
+            <button class="btn-primary" id="btnSignup" onclick="handleSignup()">Create Account</button>
+
+            <div class="divider">or</div>
+
+            <button class="btn-google" id="btnGoogleSignup" onclick="handleGoogleLogin()">
+                <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z"/>
+                    <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z"/>
+                    <path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332Z"/>
+                    <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58Z"/>
+                </svg>
+                Sign up with Google
+            </button>
+        </div>
+
+    </div><!-- /card-body -->
+
+    <div class="card-footer">
+        🔒 Your data is private and secured with Firebase
+    </div>
+
+</div><!-- /auth-card -->
+
+<!-- ── Firebase SDK (ESM via CDN) ── -->
+<script type="module">
+    import { login, signUp, loginWithGoogle, onAuthChange, getFriendlyAuthError } from './auth.js';
+
+    // ── Redirect to app if already logged in ──────────────────
+    onAuthChange((user) => {
+        if (user) {
+            window.location.href = 'index.html';
+        }
+    });
+
+    // ── Tab switching ─────────────────────────────────────────
+    window.switchTab = function(tab) {
+        document.getElementById('panelLogin').classList.toggle('active',  tab === 'login');
+        document.getElementById('panelSignup').classList.toggle('active', tab === 'signup');
+        document.getElementById('tabLogin').classList.toggle('active',    tab === 'login');
+        document.getElementById('tabSignup').classList.toggle('active',   tab === 'signup');
+        clearMessages();
+    };
+
+    function clearMessages() {
+        ['loginMsg','signupMsg'].forEach(id => {
+            const el = document.getElementById(id);
+            el.className = 'auth-message';
+            el.textContent = '';
+        });
+    }
+
+    function showMessage(elementId, text, type = 'error') {
+        const el = document.getElementById(elementId);
+        el.textContent = text;
+        el.className = `auth-message ${type}`;
+    }
+
+    function setLoading(btnId, loading) {
+        const btn = document.getElementById(btnId);
+        if (loading) {
+            btn.disabled = true;
+            btn.innerHTML = `<span class="spinner"></span> Please wait…`;
+        } else {
+            btn.disabled = false;
+        }
+    }
+
+    // ── Handle Login ──────────────────────────────────────────
+    window.handleLogin = async function() {
+        const email    = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+
+        if (!email || !password) {
+            showMessage('loginMsg', 'Please enter your email and password.');
+            return;
+        }
+
+        setLoading('btnLogin', true);
+        try {
+            await login(email, password);
+            // onAuthChange will fire and redirect to index.html
+        } catch (err) {
+            showMessage('loginMsg', getFriendlyAuthError(err.code));
+            document.getElementById('btnLogin').innerHTML = 'Sign In';
+            document.getElementById('btnLogin').disabled = false;
+        }
+    };
+
+    // ── Handle Signup ─────────────────────────────────────────
+    window.handleSignup = async function() {
+        const email    = document.getElementById('signupEmail').value.trim();
+        const password = document.getElementById('signupPassword').value;
+        const confirm  = document.getElementById('signupConfirm').value;
+
+        if (!email || !password || !confirm) {
+            showMessage('signupMsg', 'Please fill in all fields.');
+            return;
+        }
+        if (password !== confirm) {
+            showMessage('signupMsg', 'Passwords do not match.');
+            return;
+        }
+        if (password.length < 6) {
+            showMessage('signupMsg', 'Password must be at least 6 characters.');
+            return;
+        }
+
+        setLoading('btnSignup', true);
+        try {
+            await signUp(email, password);
+            showMessage('signupMsg', '✅ Account created! Redirecting…', 'success');
+            // onAuthChange will fire and redirect to index.html
+        } catch (err) {
+            showMessage('signupMsg', getFriendlyAuthError(err.code));
+            document.getElementById('btnSignup').innerHTML = 'Create Account';
+            document.getElementById('btnSignup').disabled = false;
+        }
+    };
+
+    // ── Handle Google Login (shared for both panels) ──────────
+    window.handleGoogleLogin = async function() {
+        try {
+            await loginWithGoogle();
+            // onAuthChange will fire and redirect to index.html
+        } catch (err) {
+            const panel = document.getElementById('panelLogin').classList.contains('active') ? 'loginMsg' : 'signupMsg';
+            showMessage(panel, getFriendlyAuthError(err.code));
+        }
+    };
+
+    // ── Allow Enter key to submit ─────────────────────────────
+    document.getElementById('loginPassword').addEventListener('keydown', e => {
+        if (e.key === 'Enter') window.handleLogin();
+    });
+    document.getElementById('signupConfirm').addEventListener('keydown', e => {
+        if (e.key === 'Enter') window.handleSignup();
+    });
+</script>
+
+</body>
+</html>
